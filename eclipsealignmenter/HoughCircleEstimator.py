@@ -46,7 +46,7 @@ def estimate_hough_circle(
             plt.xlim(int(xref)-radius*1.5, int(xref)+radius*1.5)
             plt.ylim(int(yref)-radius*1.5, int(yref)+radius*1.5)
             ax.axis("off")
-            plt.savefig(outdir + 'detected_circle.png', dpi = 300)
+            plt.savefig(outdir + 'log/detected_circle.png', dpi = 300)
 
         else: #誤検出の場合。
             print("error!!")
