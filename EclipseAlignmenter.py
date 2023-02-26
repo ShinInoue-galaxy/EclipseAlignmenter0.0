@@ -90,9 +90,12 @@ else:
 if not os.path.exists(outdir):
     os.makedirs(outdir)
     print('mkdir %s' % outdir)
+if not os.path.exists(outdir+'log/'):
+    os.makedirs(outdir+'log')
+    print('mkdir %s' % outdir+'log/')
 print()
 
-log = outdir + 'center_coordinate.log'
+log = outdir + 'log/center_coordinate.log'
 print('center pixels (and radius) are written in %s' % log)
 print()
 

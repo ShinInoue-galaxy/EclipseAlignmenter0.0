@@ -12,7 +12,7 @@ def calculate_radius(
 ):
     from photutils.segmentation import make_source_mask
     ext = os.path.splitext(circle_radius_image)[-1] #画像のextension
-    mask_name = outdir + os.path.basename(circle_radius_image).replace(ext, '_surface_mask' + ext) #output mask画像の出力名
+    mask_name = outdir + 'log/' + os.path.basename(circle_radius_image).replace(ext, '_surface_mask' + ext) #output mask画像の出力名
     print('calculate the radius of the circle with %s ' % circle_radius_image)
 
     #画像の読み込み
@@ -44,7 +44,7 @@ def calculate_radius(
     r = np.sqrt(surface/np.pi)
     print('radius of the circle is %.2f pix' %r )
     cv2.imwrite(mask_name, zero_img, [cv2.IMWRITE_JPEG_QUALITY, 100])
-    print('saved mask imaage: %s ' % mask_name)
+    print('saved mask image: %s ' % mask_name)
     print()
 
     return r
