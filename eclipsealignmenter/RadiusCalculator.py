@@ -5,20 +5,22 @@ import numpy as np
 import cv2
 
 def calculate_radius(
-    circle_radius_image, #半径を計算するための画像
-    outdir, # 出力先dir
-    nsigma, #マスク作成閾値
-    npixels #マスク最小pix数
+    circle_radius_image,  #半径を計算するための画像
+    outdir,               # 出力先dir
+    nsigma,               #マスク作成閾値
+    npixels               #マスク最小pix数
 ):
+    #これを使う場合には、import する。
     from photutils.segmentation import make_source_mask
-    ext = os.path.splitext(circle_radius_image)[-1] #画像のextension
-    mask_name = outdir + 'log/' + os.path.basename(circle_radius_image).replace(ext, '_surface_mask' + ext) #output mask画像の出力名
+    ext = os.path.splitext(circle_radius_image)[-1]  #画像のextension
+    mask_name = outdir + 'log/' + os.path.basename(circle_radius_image).replace(ext, '_surface_mask' + ext)  #output mask画像の出力名 logの下に
     print('calculate the radius of the circle with %s ' % circle_radius_image)
 
     #画像の読み込み
     img = cv2.imread(circle_radius_image)[:, :, [2, 1, 0]]
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) #モノクロ画像に変換。
-    mask = make_source_mask(gray, nsigma=nsigma, npixels=npixels, dilate_size=1) #マスクを作成。
+    #photutilsを使ってマスクを作成
+    mask = make_source_mask(gray, nsigma=nsigma, npixels=npixels, dilate_size=1)
 
     """===============マスクしきれなかった円の内部を塗りつぶし (参考: https://tpsxai.com/opencv_fill_hole/)============="""
     intmask = np.zeros(mask.shape)
@@ -41,8 +43,11 @@ def calculate_radius(
 
     #面積計算
     surface = np.sum(mask)
-    r = np.sqrt(surface/np.pi)
+    #半径に変換。
+    r = float(np.sqrt(surface/np.pi))
+
     print('radius of the circle is %.2f pix' %r )
+    #マスクはcheckのために出力
     cv2.imwrite(mask_name, zero_img, [cv2.IMWRITE_JPEG_QUALITY, 100])
     print('saved mask image: %s ' % mask_name)
     print()
