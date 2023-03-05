@@ -99,9 +99,14 @@ def save_image(
     else: #clipしない場合
         #resampleが必要
         print('shifting and resampling...')
-        R = image_shift(R, displacement[0], displacement[1])
-        G = image_shift(G, displacement[0], displacement[1])
-        B = image_shift(B, displacement[0], displacement[1])
+        if resampling:
+            R = image_shift(R, displacement[0], displacement[1])
+            G = image_shift(G, displacement[0], displacement[1])
+            B = image_shift(B, displacement[0], displacement[1])
+        else:
+            R = image_shift(R, np.round(displacement[0]), np.round(displacement[1]))
+            G = image_shift(G, np.round(displacement[0]), np.round(displacement[1]))
+            B = image_shift(B, np.round(displacement[0]), np.round(displacement[1]))
         print('finished!')
 
     img = np.stack([B,G,R])
