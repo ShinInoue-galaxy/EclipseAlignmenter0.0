@@ -1,33 +1,53 @@
-#時間変動する食画像を位置合わせする。
-#last update 2023/2/26
+#時間変動する食画像の位置合わせ。
+#last update 2023/3/5
 
 """============parameters=============="""
-#required
-file_list      = '/Volumes/2TB_HDD/音楽以外/天体処理済み/完全処理済み/2022/月食1108/月食60c/full_images_jpg/list.list' #str, required: 実行するファイルのリスト
-#optional
-suffix         = '' #str, option: outputにつけられるsuffix 指定しない場合は input_aligned.jpg などと '_aliged' がつく
-# 円の半径より小さい場合は、factorとみなし、円の半径*factorとする
-boxsize        = [1.2] #int or [int(x), int(y)], option: 書き出す画像のサイズ。 指定しない場合は、一枚目の画像に対して位置合わせ。clipせず書き出し。
-outdir         = 'aligned_clipped_test' #str, option: 書き出す画像のディレクトリ。 絶対パスまたは、スクリプト実行dirからの相対パス。指定しない場合は、file_listが存在するディレクトリ下にaligned/を作成 #画像は上書き。。
-out_image_type = '' #str, option: 出力する画像のタイプ。拡張子で指定。 ex: out_image_type = '.tiff'。指定しない場合は、入力画像と同じ拡張子
-resampling = False #bool,
-#円半径の推定。
-#これを使用する場合、photutilsが必要になります。
-circle_radius_image = '/Volumes/2TB_HDD/音楽以外/天体処理済み/完全処理済み/2022/月食1108/月食60c/full_images_jpg/IMG_0369.jpg'  #str, default: '', 円半径を推定するのに使う画像。 欠けていない画像を入力。指定した場合、面積から円の半径を求め、基準画像での円半径の制限に使用。
-nsigma = None #int/float, defalult: 10, 標準偏差の何倍以上をsourceとするか。
-npixels = None #int, redault: 500, これ以下のnpixelsであるsourceはノイズあるいは星としてmaskから除去。 星よりも大きく、月よりも小さい値を指定。
+#================required=================
+#str: 実行するファイルのリスト 中身の形式はwikiを参照
+file_list      = 'Sample/list.list'#'/Volumes/2TB_HDD/音楽以外/天体処理済み/完全処理済み/2022/月食1108/月食60c/full_images_jpg/list.list'
 
-#Hough parameters
-#初期画像の基準座標を与えない場合、Hough変換により、基準画像の円を検出する。
-#パラメータ調整が必要。
-dp            = 5                   #円検出のパラメータ。値が大きいほど検出基準が緩くなる。
-minDist       = 500            #隣接する円の最短距離。月画像について適用する場合、月の半径より十分大きく取る。
-param2        = 60              #円中心検出の閾値。低い値にすると円の誤検出が多くなるとのこと。
-radius     = None  #int/float, defalult: None, 円検出の際の半径 circle_radius_imageが与えられている場合、そちらの値で上書き。
+# option (適切な組み合わせで指定する必要がある。詳しくはwikiを参照)
+# str, default:_aligned. outputにつけられるsuffix
+suffix         = ''
+
+# int/float or [int/float(x), int/float(y)], default:None, 書き出す画像の大きさ。(wikiを参照)
+boxsize        = []
+
+# str, default:dir of file_list/aligned/ 書き出す画像のディレクトリ。 画像は上書き
+outdir         = ''
+
+# str, default:original,  書き出す画像の拡張子。 ex: out_image_type = '.tiff' デフォルトは入力画像と同じ拡張子
+out_image_type = ''
+
+#円半径の推定パラメータ、photutilsが必要 (wikiを参照)、Hough 変換や画像のclipに使用
+# str, default:None, 欠けていない画像を指定。画像から円の半径を推定。 上書きされる。
+circle_radius_image = '' #'/Volumes/2TB_HDD/音楽以外/天体処理済み/完全処理済み/2022/月食1108/月食60c/full_images_jpg/IMG_0369.jpg'
+
+# int/float, default: None, 円の半径。circle_radius_image によって円の半径を計算した場合は上書き。
+radius     = None
+
+# bool, default: False, 画像を小数点以下の精度でシフトするかどうか(wikiを参照)
+resampling = False
+
+# parameter tuning
+# 基本的には触らない。うまくいかない時だけ変える
+# 例外処理不十分 必ず正しいtypeの値を入れること。
+# int/float, defalult: 10, 月検出の閾値。月以外のsourceも検出される場合は、大きい値を、月が円として検出されない場合は、小さい値(>3を推奨)を入れる。
+nsigma = None
+# int, default: 500, nsigma 以上の値をもち、npixels以上連続しているsourceを月と判定する。画面に対する月、星の大きさに合わせ、　星のpix < npixels <月のpixとなる値を設定。
+npixels = None
+
+#Hough parameters　(wiki参照)
+#初期画像の基準座標を与えない場合、Hough変換により、基準画像の円を検出して、その中心座標を基準に画像をclipする。
+#画像をclipしない場合は不要。
+#うまく検出できない場合はパラメータ調整が必要。
+# int, default: 5, 円検出のパラメータ。値が大きいほど検出基準が緩くなる。
+dp            = None
+# int, default: 60, 円中心検出の閾値。低い値にすると円の誤検出が多くなるとのこと。
+param2        = None
 
 
-"""========================main======================="""
-"""========================dont edit======================="""
+"""===============*********** main do not edit *************==============="""
 #module import
 import cv2
 import numpy as np
@@ -40,28 +60,32 @@ import eclipsealignmenter.RadiusCalculator
 import eclipsealignmenter.FileHundle
 import eclipsealignmenter.HoughCircleEstimator
 import eclipsealignmenter.OtherFunctions
+import eclipsealignmenter.CheckParameters
 
+"""======デフォルト値の適用、パラメータチェック======"""
+#時間計測
+starttime = time.time()
 
+#file_listが入力されているかどうか。妥当なファイルリストかどうかの確認。
+eclipsealignmenter.CheckParameters.check_filelist(file_list)
 
-"""======デフォルト値の適用======"""
-#file_listが入力されているかどうか。
-if not file_list:
-    print('please set the path of the file list')
-    sys.exit()
-#file_listが適切か
-elif type(file_list) != str:
-    print('"file_list must be str"')
-    sys.exit()
 #suffixの判定および、例外処理。
-if not suffix:
-    suffix = '_aligned'
-else:
-    if suffix[0] != '_':
-        suffix = '_' + suffix
+suffix = eclipsealignmenter.CheckParameters.check_suffix(suffix)
+
 #出力画像の形式指定。例外処理。
-if out_image_type:
-    if out_image_type[0] != '.':
-        out_image_type = '.' + out_image_type
+out_image_type = eclipsealignmenter.CheckParameters.check_out_extension(out_image_type)
+
+#resampling
+if type(resampling) != bool:
+    print("error!!")
+    print("'esampling' must be 'True' or 'False'")
+    sys.exit()
+
+#出力ディレクトリ作成
+outdir = eclipsealignmenter.FileHundle.outdir_setting(outdir, file_list)
+log = outdir + 'log/center_coordinate.log'
+print('center pixels (and radius) are written in %s' % log)
+print()
 
 """==円半径計算パラメータデフォルト値=="""
 if circle_radius_image:
@@ -70,48 +94,19 @@ if circle_radius_image:
     if not npixels:
         npixels = 500
 
-#時間計測
-starttime = time.time()
+"""==Hough変換パラメータ=="""
+if not dp:
+    dp = 5
+if not param2:
+    pram2 = 60
 
-
-"""出力ディレクトリ作成。"""
-if outdir == '':#デフォルト
-    outdir = os.path.dirname(file_list) +'/aligned/'
-    print("Output images are written in '%s'" % outdir)
-else:
-    #/がついていなければつける。
-    r = re.match(r'.+/',outdir)
-    if not r:
-        outdir = outdir + '/'
-    if outdir =='/':#絶対PATHなら。
-        print("Output images are written in '%s'" % outdir)
-    else: #相対PATHなら
-        print("Output images are written in './%s'" % outdir)
-if not os.path.exists(outdir):
-    os.makedirs(outdir)
-    print('mkdir %s' % outdir)
-if not os.path.exists(outdir+'log/'):
-    os.makedirs(outdir+'log')
-    print('mkdir %s' % outdir+'log/')
-print()
-
-log = outdir + 'log/center_coordinate.log'
-print('center pixels (and radius) are written in %s' % log)
-print()
-
-"""円半径の計算"""
-if boxsize: #clipする場合
-    if circle_radius_image:
-        #計算して半径を取得。
-        #上書き。
-        radius = eclipsealignmenter.RadiusCalculator.calculate_radius(circle_radius_image, outdir, nsigma, npixels)
-        os.system("echo 'calculated radius is %.2f pix' > %s" % (radius,log))
-        os.system("echo '' > %s" % (log))
-
-"""===boxsize決定==="""
-boxsize = eclipsealignmenter.OtherFunctions.set_boxsize(boxsize, radius)
-
-#位置合わせして書き出し。
+#coordinate clip radiusの処理
+#boxsize がoffの場合は、半径も座標も必要ない。
+if boxsize: #clipする場合、
+    #中心座標が耐えられているか、あるいは必要なパラメータ(半径)が指定されているか
+    radius, radius_calculated = eclipsealignmenter.CheckParameters.check_coordinate_of_the_firstimage(file_list, radius, circle_radius_image, outdir, nsigma, npixels, log)
+    #boxsizeの取得
+    boxsize = eclipsealignmenter.OtherFunctions.set_boxsize(boxsize, radius, circle_radius_image, outdir, nsigma, npixels, log, radius_calculated)
 
 #全ファイル数の取得
 f = open(file_list,'r')
@@ -120,10 +115,10 @@ for fline in f:
     length+=1
 f.close()
 
+#位置合わせして書き出し。
 dispx     = 0 #ずれ初期値
 dispy     = 0 #ずれ初期値
 reference = False #reference 画像を計算したかどうかのflag
-
 #一枚ずつ実行
 f = open(file_list,'r')
 i = 0
@@ -139,6 +134,8 @@ for fline in f:
     else:
         savename = outdir+os.path.basename(filename).replace(ext,suffix+ext)
     print('input image: %s' % filename)
+
+     #log 出力
     if circle_radius_image:
         if boxsize:
             os.system("echo '%s' >> %s" % (os.path.basename(filename),log))
@@ -150,6 +147,7 @@ for fline in f:
         os.system("echo '%s' > %s" % (os.path.basename(filename),log)) #初期化
     else:
         os.system("echo '%s' >> %s" % (os.path.basename(filename),log))
+
     #画像open
     img = cv2.imread(filename)[:, :, [2, 1, 0]]
     R = img[:,:,0]
@@ -164,7 +162,7 @@ for fline in f:
             os.system("echo '   center: input: %.2f, %.2f' >> %s" % (xcen,ycen,log))
         else: #基準座標がない場合はHough変換で求める。
             #円検出で月を同定。
-            if boxsize: #基準が必要でない場合は計算したくないので、
+            if boxsize: #基準が必要でない場合は計算しない
                 print('no corrdinate is given')
                 print('matching a circle to input image with Hough transformation')
                 xref,yref = eclipsealignmenter.HoughCircleEstimator.estimate_hough_circle(gray, dp, radius, param2, outdir, log)
@@ -175,7 +173,6 @@ for fline in f:
         reference = True
 
     else: #二枚目以降
-
         if bool(xcen) & bool(ycen): #基準座標を与えている場合
             dispx = xcen - xref
             dispy = ycen - yref
