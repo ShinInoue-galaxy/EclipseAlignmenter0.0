@@ -3,6 +3,7 @@
 import sys
 import os
 from eclipsealignmenter import RadiusCalculator
+import numpy as np
 
 #boxsizeを取得する関数
 #1 clipしない
@@ -72,3 +73,11 @@ def set_boxsize(
     print('images are clipped as %d * %d' % (boxsize[0], boxsize[1]))
 
     return boxsize
+
+#画像重心
+def image_mom1(image):
+    xx = np.array([[x for x in range(image.shape[1])] for _ in range(image.shape[0])])
+    yy = np.array([[y for _ in range(image.shape[1])] for y in range(image.shape[0])])
+    x_g = np.sum(xx*image)/np.sum(image)
+    y_g = np.sum(yy*image)/np.sum(image)
+    return x_g, y_g

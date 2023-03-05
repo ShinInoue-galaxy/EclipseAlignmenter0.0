@@ -21,7 +21,7 @@ out_image_type = ''
 
 #円半径の推定パラメータ、photutilsが必要 (wikiを参照)、Hough 変換や画像のclipに使用
 # str, default:None, 欠けていない画像を指定。画像から円の半径を推定。 上書きされる。
-circle_radius_image = '' #'/Volumes/2TB_HDD/音楽以外/天体処理済み/完全処理済み/2022/月食1108/月食60c/full_images_jpg/IMG_0369.jpg'
+circle_radius_image = 'Sample/IMG_0123.jpg' #'/Volumes/2TB_HDD/音楽以外/天体処理済み/完全処理済み/2022/月食1108/月食60c/full_images_jpg/IMG_0369.jpg'
 
 # int/float, default: None, 円の半径。circle_radius_image によって円の半径を計算した場合は上書き。
 radius     = None
@@ -171,6 +171,9 @@ for fline in f:
                 yref = False
         eclipsealignmenter.FileHundle.save_image(R, G, B, savename, [xref, yref], [0,0], boxsize, resampling) #位置をずらしてresampleするかどうか。)
         reference = True
+        if not boxsize:
+            xcent_ref, ycent_ref = eclipsealignmenter.OtherFunctions.image_mom1(gray)
+
 
     else: #二枚目以降
         if bool(xcen) & bool(ycen): #基準座標を与えている場合
@@ -186,9 +189,31 @@ for fline in f:
             if boxsize:
                 xcen = xref + dispx
                 ycen = yref + dispy
+                #中心座標を0<xcen<shape, 0<ycen<shapeに納める
+                if (xcen < 0) | (gray.shape[1] <= xcen):
+                    dispx_tmp = -1. * (gray.shape[1] - abs(displacement[0])) * displacement[0]/abs(displacement[0])
+                    dispx     = dispx - displacement[0] + dispx_tmp
+                    xcen      = xref + dispx
+
+                if (ycen < 0) | (gray.shape[0] <= ycen):
+                    dispy_tmp = -1 * (gray.shape[0] - abs(displacement[1])) * displacement[1]/abs(displacement[1])
+                    dispy     = dispy - displacement[1] + dispy_tmp
+                    ycen      = yref + dispy
+
                 print('matched center is (x,y) = (%.2f, %.2f)' % (xcen, ycen))
                 os.system("echo '   center: calculated: %.2f, %.2f' >> %s" % (xcen,ycen,log))
             else:
+                #画像の重心から判定する。
+                xcent, ycent = eclipsealignmenter.OtherFunctions.image_mom1(gray)
+                #ズレを素直な方向に修正する
+                if (xcent - xcent_ref) * displacement[0] < 0:
+                    dispx_tmp = -1. * (gray.shape[1] - abs(displacement[0])) * displacement[0]/abs(displacement[0])
+                    dispx     = dispx - displacement[0] + dispx_tmp
+                if (ycent - ycent_ref) * displacement[1] < 0:
+                    dispy_tmp = -1 * (gray.shape[0] - abs(displacement[1])) * displacement[1]/abs(displacement[1])
+                    dispy     = dispy - displacement[1] + dispy_tmp
+                xcent_ref = xcent
+                ycent_ref = ycent
                 os.system("echo '   displacement: %.2f, %.2f' >> %s" % (dispx,dispy,log))
         eclipsealignmenter.FileHundle.save_image(R, G, B, savename, [xcen, ycen], [dispx,dispy], boxsize, resampling) #位置をずらしてresampleするかどうか。)
 
