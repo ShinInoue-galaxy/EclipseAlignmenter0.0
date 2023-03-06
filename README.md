@@ -13,9 +13,8 @@ opencv-contrib-python 4.6.0.66
 位置合わせは、[astronomical image registration](https://image-registration.readthedocs.io/en/latest/index.html)の[cross_correlation_shifts](https://image-registration.readthedocs.io/en/latest/image_registration.html#module-image_registration.cross_correlation_shifts)を用いて行っています。  
 これは画像の相互相関関数を計算することで、二枚の画像のずれ量を計算してくれるというものです。  
 画像の位置合わせそのものは、このモジュールだけで完結します。   
-それを組み込んで、時間変化して欠け方の変わる食画像の位置合わせを、半自動的に行えるようにしました。
+それを組み込んで、時間変化して欠け方の変わる食画像の位置合わせを、できるだけ簡単に半自動的に行えるようにしました。
 
-Use cross-correlation and a 2nd order taylor expansion to measure the offset between two images
 # Usage
 
 # License
