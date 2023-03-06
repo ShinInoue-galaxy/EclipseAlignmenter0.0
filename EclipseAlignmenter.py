@@ -4,7 +4,7 @@
 """============parameters=============="""
 #================required=================
 #str: 実行するファイルのリスト 中身の形式はwikiを参照
-file_list      = 'Sample/list.list'#'/Volumes/2TB_HDD/音楽以外/天体処理済み/完全処理済み/2022/月食1108/月食60c/full_images_jpg/list.list'
+file_list      = 'Sample/list.list'
 
 # option (適切な組み合わせで指定する必要がある。詳しくはwikiを参照)
 # str, default:_aligned. outputにつけられるsuffix
@@ -21,7 +21,7 @@ out_image_type = ''
 
 #円半径の推定パラメータ、photutilsが必要 (wikiを参照)、Hough 変換や画像のclipに使用
 # str, default:None, 欠けていない画像を指定。画像から円の半径を推定。 上書きされる。
-circle_radius_image = 'Sample/IMG_0123.jpg' #'/Volumes/2TB_HDD/音楽以外/天体処理済み/完全処理済み/2022/月食1108/月食60c/full_images_jpg/IMG_0369.jpg'
+circle_radius_image = 'Sample/IMG_0123.jpg' 
 
 # int/float, default: None, 円の半径。circle_radius_image によって円の半径を計算した場合は上書き。
 radius     = None
