@@ -6,7 +6,7 @@
 #str: 実行するファイルのリスト 中身の形式はwikiを参照
 file_list      = 'Sample/list.list'
 
-# option (適切な組み合わせで指定する必要がある。詳しくはwikiを参照)
+#================option=================== (適切な組み合わせで指定する必要がある。詳しくはwikiを参照)
 # str, default:_aligned. outputにつけられるsuffix
 suffix         = ''
 
@@ -29,7 +29,7 @@ radius     = None
 # bool, default: False, 画像を小数点以下の精度でシフトするかどうか(wikiを参照)
 resampling = False
 
-# parameter tuning
+## ================parameter tuning===============
 # 基本的には触らない。うまくいかない時だけ変える
 # 例外処理不十分 必ず正しいtypeの値を入れること。
 # int/float, defalult: 10, 月検出の閾値。月以外のsourceも検出される場合は、大きい値を、月が円として検出されない場合は、小さい値(>3を推奨)を入れる。
