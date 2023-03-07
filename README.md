@@ -20,7 +20,7 @@ opencv-contrib-python 4.6.0.66
 必要な画像ファイルを用意して、[EclipseAlignmenter.py](https://github.com/ShinInoue-galaxy/EclipseAlignmenter0.0/blob/main/EclipseAlignmenter.py)の`parameters`の`required`で設定します。必要に応じてoptionも編集します。  
 一枚目の画像を基準に、位置合わせを行った画像が書き出されます。
 
-## 画像ファイルの指定
+- 画像ファイルの指定
 
 # License
 Copyright (c) 2023 Shin Inoue
