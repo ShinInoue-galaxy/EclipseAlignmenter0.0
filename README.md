@@ -16,6 +16,11 @@ opencv-contrib-python 4.6.0.66
 それを組み込んで、時間変化して欠け方の変わる食画像の位置合わせを、できるだけ簡単に半自動的に行えるようにしました。
 
 # Usage
+使い方の詳細はwikiを参照。  
+必要な画像ファイルを用意して、[EclipseAlignmenter.py](https://github.com/ShinInoue-galaxy/EclipseAlignmenter0.0/blob/main/EclipseAlignmenter.py)を編集。  
+一枚目の画像を基準に、位置合わせを行った画像が書き出されます。
+
+## 画像ファイルの指定
 
 # License
 Copyright (c) 2023 Shin Inoue
