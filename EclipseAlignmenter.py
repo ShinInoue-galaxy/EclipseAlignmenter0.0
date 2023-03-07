@@ -11,7 +11,7 @@ file_list      = 'Sample/list.list'
 suffix         = ''
 
 # int/float or [int/float(x), int/float(y)], default:None, 書き出す画像の大きさ。(wikiを参照)
-boxsize        = []
+boxsize        = [1.5]
 
 # str, default:dir of file_list/aligned/ 書き出す画像のディレクトリ。 画像は上書き
 outdir         = ''
